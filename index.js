@@ -1,7 +1,6 @@
 const { google } = require('googleapis');
 const { client_id, client_secret, redirect_uri, refresh_token } = require('./configs/secret.json');
 const { html2urls, listMessages, getMessage, openWebAndClick } = require('./helper');
-const axios = require('axios');
 
 const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
 oauth2Client.setCredentials({ refresh_token });
@@ -19,8 +18,13 @@ oauth2Client.refreshAccessToken();
   }
 
   const url = html2urls(htmlContent).filter(x => ~x.indexOf('UPDATE_HOUSEHOLD_REQUESTED_OTP_CTA'))[0];
+  
+  const now = new Date();
   const time = new Date(+internalDate);
-  console.log(time.toISOString());
+  if (now - time > 15*60*1000) {
+    console.log('no new OTP email... exit');
+    return;
+  }
   console.log(url);
   openWebAndClick(url);
 })();
