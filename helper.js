@@ -1,4 +1,24 @@
 const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
+const { username, password } = require('./configs/netflix.json');
+
+async function openWebAndClick(url) {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  await page.goto(url);
+
+  await page.waitForNetworkIdle({
+    idleTime: 1000,
+  });
+
+  await page.type('#id_userLoginId', username);
+  await page.type('#id_password', password);
+  await page.click('#appMountPoint > div > div.login-body > div > div > div.hybrid-login-form-main > form > button');
+
+  await page.waitForNavigation();
+  await page.click('#hd > div:nth-child(2) > a');
+  await browser.close();
+}
 
 function html2urls(htmlContent) {
   const $ = cheerio.load(htmlContent);
@@ -56,4 +76,5 @@ module.exports = {
   html2urls,
   listMessages,
   getMessage,
+  openWebAndClick,
 };

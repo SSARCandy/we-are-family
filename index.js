@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const { client_id, client_secret, redirect_uri, refresh_token } = require('./configs/secret.json');
-const { html2urls, listMessages, getMessage } = require('./helper');
+const { html2urls, listMessages, getMessage, openWebAndClick } = require('./helper');
 const axios = require('axios');
 
 const oauth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
@@ -22,5 +22,5 @@ oauth2Client.refreshAccessToken();
   const time = new Date(+internalDate);
   console.log(time.toISOString());
   console.log(url);
-  await axios.get(url);
+  openWebAndClick(url);
 })();
