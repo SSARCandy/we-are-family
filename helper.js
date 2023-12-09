@@ -3,27 +3,34 @@ const puppeteer = require('puppeteer');
 const { username, password } = require('./configs/netflix.json');
 
 async function openWebAndClick(url) {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
   await page.goto(url);
 
-  await page.waitForNetworkIdle({
-    idleTime: 1000,
-  });
+  try {
+    await page.waitForNetworkIdle({ idleTime: 1000 });
+    await page.type('#id_userLoginId', username);
+    await page.type('#id_password', password);
+    await page.click('#appMountPoint > div > div.login-body > div > div > div.hybrid-login-form-main > form > button');
+  } catch (e) {
 
-  await page.type('#id_userLoginId', username);
-  await page.type('#id_password', password);
-  await page.click('#appMountPoint > div > div.login-body > div > div > div.hybrid-login-form-main > form > button');
+  }
 
-  await page.waitForNavigation();
-  await page.click('#hd > div:nth-child(2) > a');
-  await browser.close();
+  try {
+    await page.waitForNetworkIdle({ idleTime: 1000 });
+    await page.click('[data-uia=set-primary-location-action]');
+    await page.waitForNetworkIdle({ idleTime: 1000 });
+    await browser.close();
+    return true;
+  } catch (e) {
+    console.error('Unable to click button:', e);
+  }
 }
 
 function html2urls(htmlContent) {
   const $ = cheerio.load(htmlContent);
   const urls = [];
-  $('a').each((i, link) => {
+  $('a').each((_, link) => {
     urls.push($(link).attr('href'));
   });
 
@@ -51,19 +58,18 @@ async function listMessages(gmail) {
 async function getMessage(gmail, id) {
   try {
     const response = await gmail.users.messages.get({
+      id,
       userId: 'me',
-      id: id,
     });
 
     const parts = response.data.payload.parts;
     let htmlContent = '';
-    if (parts) {
-      for (const part of parts) {
-        if (part.mimeType === 'text/html') {
-          htmlContent = Buffer.from(part.body.data, 'base64').toString();
-          break;
-        }
-      }
+    if (!parts) return;
+
+    for (const part of parts) {
+      if (part.mimeType !== 'text/html') continue;
+      htmlContent = Buffer.from(part.body.data, 'base64').toString();
+      break;
     }
     return { htmlContent, internalDate: response.data.internalDate };
   } catch (err) {
