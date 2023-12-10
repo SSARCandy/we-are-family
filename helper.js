@@ -3,7 +3,13 @@ const puppeteer = require('puppeteer');
 const { username, password } = require('./configs/netflix.json');
 
 async function openWebAndClick(url) {
-  const browser = await puppeteer.launch({ headless: 'new' });
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: [
+      "--no-sandbox",
+      "--disable-gpu",
+    ],
+  });
   const page = await browser.newPage();
   await page.goto(url);
 
@@ -13,7 +19,7 @@ async function openWebAndClick(url) {
     await page.type('#id_password', password);
     await page.click('#appMountPoint > div > div.login-body > div > div > div.hybrid-login-form-main > form > button');
   } catch (e) {
-
+    // console.error('Unable to Login:', e);
   }
 
   try {
