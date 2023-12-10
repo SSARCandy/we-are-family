@@ -26,11 +26,11 @@ async function openWebAndClick(url) {
     await page.waitForNetworkIdle({ idleTime: 1000 });
     await page.click('[data-uia=set-primary-location-action]');
     await page.waitForNetworkIdle({ idleTime: 1000 });
-    await browser.close();
     return true;
   } catch (e) {
     console.error('Unable to click button:', e);
   }
+  await browser.close();
 }
 
 function html2urls(htmlContent) {
