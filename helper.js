@@ -3,12 +3,9 @@ const puppeteer = require('puppeteer');
 const { username, password } = require('./configs/netflix.json');
 
 async function openWebAndClick(url) {
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: [
-      "--no-sandbox",
-      "--disable-gpu",
-    ],
+  const browser = await puppeteer.connect({
+    browserURL: 'http://localhost:9222',
+    args: ["--no-sandbox", "--disable-gpu"]
   });
   const page = await browser.newPage();
   await page.goto(url);
@@ -30,6 +27,7 @@ async function openWebAndClick(url) {
   } catch (e) {
     console.error('Unable to click button:', e);
   }
+  await page.close();
   await browser.close();
 }
 
