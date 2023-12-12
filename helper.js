@@ -4,7 +4,7 @@ const { username, password } = require('./configs/netflix.json');
 
 async function openWebAndClick(url) {
   const browser = await puppeteer.connect({
-    browserURL: 'http://localhost:9222',
+    browserURL: 'http://localhost:9222/json/version',
     args: ["--no-sandbox", "--disable-gpu"]
   });
   const page = await browser.newPage();
@@ -25,7 +25,7 @@ async function openWebAndClick(url) {
     await page.waitForNetworkIdle({ idleTime: 1000 });
     return true;
   } catch (e) {
-    console.error('Unable to click button:', e);
+    console.error('Unable to click button:', e.message);
   }
   await page.close();
   await browser.close();

@@ -2,7 +2,7 @@
   "name": "we-are-family",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "update-primary-location.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

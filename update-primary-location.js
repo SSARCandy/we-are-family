@@ -19,17 +19,20 @@ oauth2Client.refreshAccessToken();
     return;
   }
 
+  const now = new Date();
   const time = new Date(+internalDate);
   const prev = new Date(last_email_ts);
   if (time - prev <= 0) {
-    console.log(time, 'no new OTP email... exit');
+    //console.log(now, 'no new OTP email... exit');
     return;
   }
 
-  console.log(time, 'found new OTP email... handling');
+  console.log(now, 'found new OTP email... handling');
   const KEYWORDS = 'UPDATE_HOUSEHOLD_REQUESTED_OTP_CTA';
   const url = html2urls(htmlContent).filter(x => ~x.indexOf(KEYWORDS))[0];
-  console.log(url)
+  console.log(now, 'found URL =', url)
   await openWebAndClick(url);
   fs.writeFileSync('./configs/last_email_ts.json', internalDate);
+  console.log(new Date(), 'done');
+  process.exit(0);
 })();
