@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { google } = require('googleapis');
-const { client_id, client_secret, redirect_uri, refresh_token } = require('./configs/secret.json');
+const { client_id, client_secret, redirect_uri, refresh_token, alert_uri } = require('./configs/secret.json');
 const { html2urls, listMessages, getMessage, openWebAndClick } = require('./helper');
 const last_email_ts = require('./configs/last_email_ts.json');
 
@@ -27,12 +27,19 @@ oauth2Client.refreshAccessToken();
     return;
   }
 
-  console.log(now, 'found new OTP email... handling');
-  const KEYWORDS = 'UPDATE_HOUSEHOLD_REQUESTED_OTP_CTA';
-  const url = html2urls(htmlContent).filter(x => ~x.indexOf(KEYWORDS))[0];
-  console.log(now, 'found URL =', url)
-  await openWebAndClick(url);
-  fs.writeFileSync('./configs/last_email_ts.json', internalDate);
-  console.log(new Date(), 'done');
-  process.exit(0);
+  try {
+    console.log(now, 'found new OTP email... handling');
+    const KEYWORDS = 'UPDATE_HOUSEHOLD_REQUESTED_OTP_CTA';
+    const url = html2urls(htmlContent).filter(x => ~x.indexOf(KEYWORDS))[0];
+    console.log(now, 'found URL =', url)
+    await openWebAndClick(url);
+    fs.writeFileSync('./configs/last_email_ts.json', internalDate);
+    console.log(new Date(), 'done');
+    process.exit(0);
+  } catch (e) {
+    const axios = require('axios');
+    await axios.post(alert_uri, {
+      text: 'unable to update primary location.',
+    });
+  }
 })();
